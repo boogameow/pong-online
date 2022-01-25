@@ -32,7 +32,7 @@ io.on('connection', (socket) => {
 
     // disconnect hookup
     socket.on("disconnect", ()=>{
-        io.emit("stop", {})
+        io.emit("stop", users[socket.id])
         delete users[socket.id];
         console.log("User Disconnected");
     })
@@ -48,7 +48,8 @@ io.on('connection', (socket) => {
     socket.on("ball", (data)=> {
         io.emit("ball", {
             x: data.contents[0],
-            y: data.contents[1]
+            y: data.contents[1],
+            id: users[socket.id].id
         })
     })
 
@@ -56,17 +57,22 @@ io.on('connection', (socket) => {
     socket.on("score", (data)=> {
         io.emit("score", {
             blue: data.contents[0],
-            red: data.contents[1]
+            red: data.contents[1],
+            id: users[socket.id].id
         })
     })
 
-    // tell other clients that I joined.
-    io.emit('join', users[socket.id]) 
+    socket.emit('init', {id: socket.id})
 
     // tell me about the other clients.
     Object.keys(users).forEach(u => {
-        if (users[u].id !== socket.id){
-            socket.emit('join', users[u]);
+        if (users[u].id !== socket.id && users[u].index == (user.index - 1) && users[u].found == null && users[socket.id].found == null){
+            socket.emit('join', {user: users[u], id: u, host: false});
+            io.emit('join', {user: users[u], id: u, host: true});
+            users[socket.id].found = true
+            users[u].found = true
+            // if hosting and that id is ours, we put that as our id. if not hosting then put that as our id.
+            // also need to set the host value.
         }
     });
 })
