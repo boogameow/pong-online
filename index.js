@@ -7,16 +7,13 @@ http.listen(process.env.PORT || 3030);
 // variables
 
 var users = {}
-var playerindex = 0
 
 // template
 
 function template(id){
     if (!id) id = "";
-    playerindex += 1
     return {
         id: id,
-        index: playerindex,
         y: 0,
         dir: 0,
     }
@@ -62,17 +59,16 @@ io.on('connection', (socket) => {
         })
     })
 
+    // send the client their unique id.
     socket.emit('init', {id: socket.id})
 
-    // tell me about the other clients.
+    // find another client if applicable.
     Object.keys(users).forEach(u => {
-        if (users[u].id !== socket.id && users[u].index == (user.index - 1) && users[u].found == null && users[socket.id].found == null){
+        if (users[u].id !== socket.id && users[u].found == null && users[socket.id].found == null){
             socket.emit('join', {user: users[u], id: u, host: false});
             io.emit('join', {user: users[u], id: u, host: true});
             users[socket.id].found = true
             users[u].found = true
-            // if hosting and that id is ours, we put that as our id. if not hosting then put that as our id.
-            // also need to set the host value.
         }
     });
 })
