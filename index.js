@@ -69,7 +69,9 @@ io.on('connection', (socket) => {
             io.emit('join', {user: users[u], id: u, host: true});
             users[socket.id].found = true
             users[socket.id].id = u
+            users[socket.id].host = false
             users[u].found = true
+            users[u].host = true
         }
     });
 })
