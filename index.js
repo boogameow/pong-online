@@ -16,6 +16,7 @@ function template(id){
         id: id,
         y: 0,
         dir: 0,
+        time: 0,
     }
 }
 
@@ -37,6 +38,7 @@ io.on('connection', (socket) => {
     socket.on("paddle", (data)=> {
         users[socket.id].y = data.contents[0]
         users[socket.id].dir = data.contents[1]
+        users[socket.id].time = data.contents[2]
         io.emit("paddle", users[socket.id])
     })
 
