@@ -30,7 +30,7 @@ io.on('connection', (socket) => {
     socket.on("disconnect", ()=>{
         io.emit("stop", users[socket.id])
         delete users[socket.id];
-        io.emit('usercount', users.rows.length)
+        io.emit('usercount', Object.keys(users).length)
     })
 
     // paddle movement
@@ -60,7 +60,7 @@ io.on('connection', (socket) => {
 
     // send the client starting data.
     socket.emit('init', {id: socket.id})
-    io.emit('usercount', users.rows.length) // we use io because its directed at everyone.
+    io.emit('usercount', Object.keys(users).length) // we use io because its directed at everyone.
 
     // find another client if applicable.
     Object.keys(users).forEach(u => {
