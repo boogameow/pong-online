@@ -24,11 +24,15 @@ function template(id){
 io.on('connection', (socket) => {
     var user = new template(socket.id);
     user.id = socket.id;
+    user.socket = socket
     users[socket.id] = user;
 
     // disconnect hookup
     socket.on("disconnect", ()=>{
-        io.emit("stop", users[socket.id])
+        if (users[users[socket.id].id2] !== null){
+            users[socket.id].socket2.emit("stop")
+        }
+        
         delete users[socket.id];
         io.emit('usercount', Object.keys(users).length)
     })
@@ -37,25 +41,30 @@ io.on('connection', (socket) => {
     socket.on("paddle", (data)=> {
         users[socket.id].y = data.contents[0]
         users[socket.id].dir = data.contents[1]
-        io.emit("paddle", users[socket.id])
+
+        if (users[users[socket.id].id2] !== null){
+            users[socket.id].socket2.emit("paddle", users[socket.id])
+        }
     })
 
     // ball movement
     socket.on("ball", (data)=> {
-        io.emit("ball", {
-            x: data.contents[0],
-            y: data.contents[1],
-            id: users[socket.id].id
-        })
+        if (users[socket.id].host == true && users[users[socket.id].id2] !== null){
+            users[socket.id].socket2.emit("ball", {
+                x: data.contents[0],
+                y: data.contents[1]
+            })
+        }
     })
 
     // dub scores
     socket.on("score", (data)=> {
-        io.emit("score", {
-            blue: data.contents[0],
-            red: data.contents[1],
-            id: users[socket.id].id
-        })
+        if (users[socket.id].host == true && users[users[socket.id].id2] !== null){
+            users[socket.id].socket2.emit("score", {
+                blue: data.contents[0],
+                red: data.contents[1]
+            })
+        }
     })
 
     // send the client starting data.
@@ -66,12 +75,15 @@ io.on('connection', (socket) => {
     Object.keys(users).forEach(u => {
         if (users[u].id !== socket.id && users[u].found == null && users[socket.id].found == null){
             socket.emit('join', {user: users[u], id: u, host: false});
-            io.emit('join', {user: users[u], id: u, host: true});
+            users[u].socket.emit('join', {user: users[u], id: u, host: true});
             users[socket.id].found = true
-            users[socket.id].id = u
             users[socket.id].host = false
+            users[socket.id].socket2 = users[u].socket
+            users[socket.id].id2 = u
             users[u].found = true
             users[u].host = true
+            users[u].id2 = socket.id
+            users[u].socket2 = users[socket.id].socket
         }
     });
 })
