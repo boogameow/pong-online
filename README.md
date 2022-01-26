@@ -1,4 +1,4 @@
-This is the p2p branch (meaning one player hosts).
+This is the p2p branch (meaning one player acts as the host).
 
 # Instructions
 1) Go to the snap link: https://snap.berkeley.edu/project?user=nichobra000&project=Pong%20Online%20P2P
