@@ -22,7 +22,6 @@ function template(id){
 // main system
 
 io.on('connection', (socket) => {
-    console.log("User Connected");
     var user = new template(socket.id);
     user.id = socket.id;
     users[socket.id] = user;
@@ -31,7 +30,7 @@ io.on('connection', (socket) => {
     socket.on("disconnect", ()=>{
         io.emit("stop", users[socket.id])
         delete users[socket.id];
-        console.log("User Disconnected");
+        io.emit('usercount', users.rows.length)
     })
 
     // paddle movement
@@ -59,8 +58,9 @@ io.on('connection', (socket) => {
         })
     })
 
-    // send the client their unique id.
+    // send the client starting data.
     socket.emit('init', {id: socket.id})
+    io.emit('usercount', users.rows.length) // we use io because its directed at everyone.
 
     // find another client if applicable.
     Object.keys(users).forEach(u => {
