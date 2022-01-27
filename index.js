@@ -67,13 +67,16 @@ io.on('connection', (socket) => {
     // find another client if applicable.
     Object.keys(users).forEach(u => {
         if (users[u].id !== socket.id && users[u].found == null && users[socket.id].found == null){
-            socket.emit('join', {user: users[u], id: u, host: false});
-            io.emit('join', {user: users[u], id: u, host: true});
+            users[u].time = Date.now()
+            users[u].found = true
+            users[u].host = true
+            users[socket.id].time = Date.now()
             users[socket.id].found = true
             users[socket.id].id = u
             users[socket.id].host = false
-            users[u].found = true
-            users[u].host = true
+
+            socket.emit('join', {user: users[u], id: u, host: false});
+            io.emit('join', {user: users[u], id: u, host: true});
         }
     });
 })
